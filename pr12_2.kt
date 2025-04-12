@@ -1,49 +1,64 @@
 import kotlinx.coroutines.*
-suspend fun main(){
-    try {
-        println("Выберите действие\n" +
-                "1 - Блокировка\n" +
-                "2 - Загружить пользователей")
-        var v = readln()!!.toInt()
+suspend fun main() {
+    val repos = Repos()
 
-        when(v){
-            1 -> block()
-            2 -> load()
+    while (true) {
+        try {
+            println(
+                "Выберите действие:\n" +
+                        "1 - Блокировка\n" +
+                        "2 - Загрузить пользователей\n" +
+                        "3 - Выход"
+            )
+            val v = readln().toInt()
+
+            when (v) {
+                1 -> block(repos)
+                2 -> load(repos)
+                3 -> {
+                    println("Выход...")
+                    break
+                }
+                else -> println("Неверный выбор")
+            }
+        } catch (e: Exception) {
+            println("Неверные данные")
         }
     }
-    catch (e:Exception){
-        println("Неверные данные")
-    }
 }
-
-suspend fun block(){
+suspend fun block(repos: Repos) {
     try {
-        runBlocking { delay(30000L) }
+        if (repos.p.isEmpty()) {
+            println("Нет данных для блокировки. Сначала загрузите пользователей.")
+            return
+        }
 
-        var r: Repos = Repos()
-        val sorted = r.p.sortedWith(compareBy<String> { s -> s.takeLastWhile { it.isDigit() }.toInt()})
-        for (n in sorted){
+        val sorted = repos.p.sortedWith(compareBy { s ->
+            s.takeLastWhile { it.isDigit() }.toIntOrNull() ?: 0
+        })
+
+        for (n in sorted) {
             println(n)
         }
-    }
-    catch (e:Exception){
-        println("Неверные данные")
+        delay(3000L)
+    } catch (e: Exception) {
+        println("Ошибка при блокировке: ${e.message}")
     }
 }
-
-suspend fun load(){
+suspend fun load(repos: Repos) {
     try {
-        var r: Repos = Repos()
-        var p = r.Input()
-        GlobalScope.launch {
-            for (i in 1..p){
-                println("$i данные")
-                r.Person()
+        val n = repos.Input()
+
+        coroutineScope {
+            repeat(n) {
+                println("Введите данные для пользователя ${it + 1}:")
+                repos.Person()
             }
         }
-        runBlocking { delay(30000L) }
-    }
-    catch (e:Exception){
-        println("Неверные данные")
+
+        println("Загружено пользователей: ${repos.p.size}")
+        delay(3000L)
+    } catch (e: Exception) {
+        println("Ошибка при загрузке: ${e.message}")
     }
 }
