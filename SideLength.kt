@@ -22,7 +22,7 @@ class SideLength {
             var alf = readln()!!.toDouble()
             if (a>=0.1&&b>=0.1&&alf>=0){
                 println("Выберите для какой фигуры найти длину стороны\n" +
-                        "1 - треугольник, 2 - прямоугольник, 3 - параллелограм")
+                        "1 - треугольник, 2 - прямоугольник, 3 - параллелограмм")
                 var v = readln()!!.toInt()
                 if (v == 1){
                     val otv1 = (Math.pow(a,2.0)+Math.pow(b,2.0))-2*a*b*cos(alf)
